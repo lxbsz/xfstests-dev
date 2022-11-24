@@ -624,12 +624,14 @@ _stash_test_status() {
 	esac
 }
 
+date; echo "check --------------------- v1"
 # Can we run systemd scopes?
 HAVE_SYSTEMD_SCOPES=
 systemctl reset-failed "fstests-check" &>/dev/null
 systemd-run --quiet --unit "fstests-check" --scope bash -c "exit 77" &> /dev/null
 test $? -eq 77 && HAVE_SYSTEMD_SCOPES=yes
 
+date; echo "check --------------------- v2"
 # Make the check script unattractive to the OOM killer...
 OOM_SCORE_ADJ="/proc/self/oom_score_adj"
 function _adjust_oom_score() {
@@ -637,6 +639,7 @@ function _adjust_oom_score() {
 }
 _adjust_oom_score -500
 
+date; echo "check --------------------- v3"
 # ...and make the tests themselves somewhat more attractive to it, so that if
 # the system runs out of memory it'll be the test that gets killed and not the
 # test framework.  The test is run in a separate process without any of our
@@ -663,8 +666,11 @@ _run_seq() {
 	fi
 }
 
+date; echo "check --------------------- v4"
 _detect_kmemleak
+date; echo "check --------------------- v5"
 _prepare_test_list
+date; echo "check --------------------- v6"
 
 if $OPTIONS_HAVE_SECTIONS; then
 	trap "_summary; exit \$status" 0 1 2 3 15
@@ -679,6 +685,7 @@ function run_section()
 	OLD_FSTYP=$FSTYP
 	OLD_TEST_FS_MOUNT_OPTS=$TEST_FS_MOUNT_OPTS
 
+date; echo "check --------------------- v7"
 	# Do we need to run only some sections ?
 	if [ ! -z "$RUN_SECTION" ]; then
 		skip=true
@@ -693,6 +700,7 @@ function run_section()
 		fi
 	fi
 
+date; echo "check --------------------- v8"
 	# Did this section get excluded?
 	if [ ! -z "$EXCLUDE_SECTION" ]; then
 		skip=false
@@ -707,6 +715,7 @@ function run_section()
 		fi
 	fi
 
+date; echo "check --------------------- v9"
 	get_next_config $section
 
 	mkdir -p $RESULT_BASE
@@ -716,10 +725,12 @@ function run_section()
 		exit
 	fi
 
+date; echo "check --------------------- v10"
 	if $OPTIONS_HAVE_SECTIONS; then
 		echo "SECTION       -- $section"
 	fi
 
+date; echo "check --------------------- v11"
 	sect_start=`_wallclock`
 	if $RECREATE_TEST_DEV || [ "$OLD_FSTYP" != "$FSTYP" ]; then
 		echo "RECREATING    -- $FSTYP on $TEST_DEV"
@@ -758,6 +769,7 @@ function run_section()
 	seq="check"
 	check="$RESULT_BASE/check"
 
+date; echo "check --------------------- v12"
 	# don't leave old full output behind on a clean run
 	rm -f $check.full
 
@@ -767,25 +779,38 @@ function run_section()
 	echo "FSTYP         -- `_full_fstyp_details`"
 	echo "PLATFORM      -- `_full_platform_details`"
 	if [ ! -z "$SCRATCH_DEV" ]; then
+date; echo "check --------------------- v13"
 	  echo "MKFS_OPTIONS  -- `_scratch_mkfs_options`"
 	  echo "MOUNT_OPTIONS -- `_scratch_mount_options`"
 	fi
 	echo
 	needwrap=true
+date; echo "check --------------------- v14"
 
+date; echo "check --------------------- v15"
 	if [ ! -z "$SCRATCH_DEV" ]; then
+date; echo "check --------------------- v16"
 	  _scratch_unmount 2> /dev/null
+date; echo "check --------------------- v17"
 	  # call the overridden mkfs - make sure the FS is built
 	  # the same as we'll create it later.
 
+date; echo "check --------------------- v18"
 	  if ! _scratch_mkfs >$tmp.err 2>&1
 	  then
+date; echo "check --------------------- v18.1"
+date; echo "check --------------------- v18.1"
+date; echo "check --------------------- v18.1"
+date; echo "check --------------------- v18.1"
+date; echo "check --------------------- v18.1"
+date; echo "check --------------------- v18.1"
 	      echo "our local _scratch_mkfs routine ..."
 	      cat $tmp.err
 	      echo "check: failed to mkfs \$SCRATCH_DEV using specified options"
 	      status=1
 	      exit
 	  fi
+date; echo "check --------------------- v19"
 
 	  # call the overridden mount - make sure the FS mounts with
 	  # the same options that we'll mount with later.
@@ -797,13 +822,17 @@ function run_section()
 	      status=1
 	      exit
 	  else
+date; echo "check --------------------- v20"
 	      _scratch_unmount
+date; echo "check --------------------- v21"
 	  fi
 	fi
 
+date; echo "check --------------------- v22"
 	seqres="$check"
 	_check_test_fs
 
+date; echo "check --------------------- v23"
 	loop_status=()	# track rerun-on-failure state
 	local tc_status ix
 	local -a _list=( $list )
@@ -825,6 +854,7 @@ function run_section()
 			fi
 		fi
 
+date; echo "check --------------------- v24"
 		# the filename for the test and the name output are different.
 		# we don't include the tests/ directory in the name output.
 		export seqnum=`echo $seq | sed -e "s;$SRC_DIR/;;"`
@@ -841,11 +871,13 @@ function run_section()
 		fi
 		seqres="$REPORT_DIR/$seqnum"
 
+date; echo "check --------------------- v25"
 		mkdir -p $RESULT_DIR
 		rm -f ${RESULT_DIR}/require_scratch*
 		rm -f ${RESULT_DIR}/require_test*
 		echo -n "$seqnum"
 
+date; echo "check --------------------- v26"
 		if $showme; then
 			_expunge_test $seqnum
 			if [ $? -eq 1 ]; then
@@ -860,6 +892,7 @@ function run_section()
 			continue
 		fi
 
+date; echo "check --------------------- v27"
 		tc_status="pass"
 		if [ ! -f $seq ]; then
 			echo " - no such test?"
@@ -867,6 +900,7 @@ function run_section()
 			continue
 		fi
 
+date; echo "check --------------------- v28"
 		# really going to try and run this one
 		rm -f $seqres.out.bad $seqres.hints
 
@@ -878,16 +912,19 @@ function run_section()
 			continue
 		fi
 
+date; echo "check --------------------- v29"
 		# record that we really tried to run this test.
 		if ((!${#loop_status[*]})); then
 			try+=("$seqnum")
 		fi
 
+date; echo "check --------------------- v30"
 		awk 'BEGIN {lasttime="       "} \
 		     $1 == "'$seqnum'" {lasttime=" " $2 "s ... "; exit} \
 		     END {printf "%s", lasttime}' "$check.time"
 		rm -f core $seqres.notrun
 
+date; echo "check --------------------- v31"
 		start=`_wallclock`
 		$timestamp && _timestamp
 		[ ! -x $seq ] && chmod u+x $seq # ensure we can run it
@@ -899,12 +936,15 @@ function run_section()
 			touch ${RESULT_DIR}/check_dmesg
 			rm -f ${RESULT_DIR}/dmesg_filter
 		fi
+date; echo "check --------------------- v32"
 		_try_wipe_scratch_devs > /dev/null 2>&1
 
+date; echo "check --------------------- v33"
 		# clear the WARN_ONCE state to allow a potential problem
 		# to be reported for each test
 		(echo 1 > $DEBUGFS_MNT/clear_warn_once) > /dev/null 2>&1
 
+date; echo "check --------------------- v34"
 		if [ "$DUMP_OUTPUT" = true ]; then
 			_run_seq 2>&1 | tee $tmp.out
 			# Because $? would get tee's return code
@@ -914,6 +954,7 @@ function run_section()
 			sts=$?
 		fi
 
+date; echo "check --------------------- v35"
 		# If someone sets kernel.core_pattern or kernel.core_uses_pid,
 		# coredumps generated by fstests might have a longer name than
 		# just "core".  Use globbing to find the most common patterns,
@@ -928,6 +969,7 @@ function run_section()
 			tc_status="fail"
 		done
 
+date; echo "check --------------------- v36"
 		if [ -f $seqres.notrun ]; then
 			$timestamp && _timestamp
 			stop=`_wallclock`
@@ -943,11 +985,15 @@ function run_section()
 			_scratch_unmount 2> /dev/null
 			continue;
 		fi
+date; echo "check --------------------- v37"
 
 		if [ $sts -ne 0 ]; then
+date; echo "check --------------------- v38"
 			_dump_err_cont "[failed, exit status $sts]"
 			_test_unmount 2> /dev/null
+date; echo "check --------------------- v39"
 			_scratch_unmount 2> /dev/null
+date; echo "check --------------------- v40"
 			rm -f ${RESULT_DIR}/require_test*
 			rm -f ${RESULT_DIR}/require_scratch*
 			tc_status="fail"
@@ -957,9 +1003,11 @@ function run_section()
 			# checking tools from a subshell with adjusted OOM
 			# score so that the OOM killer will target them instead
 			# of the check script itself.
+date; echo "check --------------------- v41"
 			(_adjust_oom_score 250; _check_filesystems) || tc_status="fail"
 			_check_dmesg || tc_status="fail"
 
+date; echo "check --------------------- v42"
 			# Save any coredumps from the post-test fs checks
 			for i in core core.*; do
 				test -f "$i" || continue
@@ -971,18 +1019,25 @@ function run_section()
 			done
 		fi
 
+date; echo "check --------------------- v43"
 		# Reload the module after each test to check for leaks or
 		# other problems.
 		if [ -n "${TEST_FS_MODULE_RELOAD}" ]; then
+date; echo "check --------------------- v44"
 			_test_unmount 2> /dev/null
+date; echo "check --------------------- v45"
 			_scratch_unmount 2> /dev/null
+date; echo "check --------------------- v46"
 			modprobe -r fs-$FSTYP
 			modprobe fs-$FSTYP
 		fi
+date; echo "check --------------------- v47"
 
 		# Scan for memory leaks after every test so that associating
 		# a leak to a particular test will be as accurate as possible.
+date; echo "check --------------------- v48"
 		_check_kmemleak || tc_status="fail"
+date; echo "check --------------------- v49"
 
 		# test ends after all checks are done.
 		$timestamp && _timestamp
@@ -995,6 +1050,7 @@ function run_section()
 			continue;
 		fi
 
+date; echo "check --------------------- v50"
 		# coreutils 8.16+ changed quote formats in error messages
 		# from `foo' to 'foo'. Filter old versions to match the new
 		# version.
@@ -1029,6 +1085,7 @@ function run_section()
 		fi
 		_stash_test_status "$seqnum" "$tc_status"
 	done
+date; echo "check --------------------- v51"
 
 	sect_stop=`_wallclock`
 	interrupt=false
@@ -1040,17 +1097,24 @@ function run_section()
 	_scratch_unmount 2> /dev/null
 }
 
+date; echo "check --------------------- v52"
 for ((iters = 0; iters < $iterations; iters++)) do
 	for section in $HOST_OPTIONS_SECTIONS; do
+date; echo "check --------------------- v53"
 		run_section $section
+date; echo "check --------------------- v54"
 		if [ "$sum_bad" != 0 ] && [ "$istop" = true ]; then
+date; echo "check --------------------- v55"
 			interrupt=false
 			status=`expr $sum_bad != 0`
 			exit
 		fi
+date; echo "check --------------------- v56"
 	done
+date; echo "check --------------------- v57"
 done
 
+date; echo "check --------------------- v58"
 interrupt=false
 status=`expr $sum_bad != 0`
 exit
