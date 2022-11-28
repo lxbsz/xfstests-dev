@@ -733,6 +733,7 @@ date; echo "check --------------------- v10"
 date; echo "check --------------------- v11"
 	sect_start=`_wallclock`
 	if $RECREATE_TEST_DEV || [ "$OLD_FSTYP" != "$FSTYP" ]; then
+date; echo "check --------------------- v11.1"
 		echo "RECREATING    -- $FSTYP on $TEST_DEV"
 		_test_unmount 2> /dev/null
 		if ! _test_mkfs >$tmp.err 2>&1
@@ -755,6 +756,7 @@ date; echo "check --------------------- v11"
 		. common/rc
 		_prepare_test_list
 	elif [ "$OLD_TEST_FS_MOUNT_OPTS" != "$TEST_FS_MOUNT_OPTS" ]; then
+date; echo "check --------------------- v11.2"
 		_test_unmount 2> /dev/null
 		if ! _test_mount
 		then
